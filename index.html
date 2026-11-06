@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Demo</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #080000;
+  color: #ff3333;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+#startScreen {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f5f5;
+  color: #222;
+}
+
+#startButton {
+  background: #222;
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 15px;
+}
+
+#app {
+  display: none;
+  min-height: 100vh;
+  padding: 22px;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.panel {
+  border: 2px solid red;
+  background: #200000;
+  padding: 18px;
+  border-radius: 12px;
+  animation: panelLight 1.5s ease-in-out infinite;
+}
+
+h1 {
+  font-size: 32px;
+  text-shadow: 0 0 15px red;
+}
+
+.bar {
+  height: 15px;
+  background: #444;
+  margin: 20px 0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+#progress {
+  width: 0%;
+  height: 100%;
+  background: red;
+  transition: width .3s;
+}
+
+#terminal {
+  text-align: left;
+  height: 110px;
+  overflow: hidden;
+  font-size: 12px;
+  color: #ff7777;
+}
+
+#note {
+  font-size: 11px;
+  color: #aaa;
+}
+
+body.active {
+  animation: intenseGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes intenseGlow {
+  0%, 100% { background: #080000; }
+  25% { background: #450000; }
+  50% { background: #a00000; }
+  75% { background: #350000; }
+}
+
+@keyframes panelLight {
+  0%, 100% {
+    box-shadow: 0 0 12px red;
+    border-color: #990000;
+  }
+  50% {
+    box-shadow: 0 0 45px red, 0 0 70px #ff3333;
+    border-color: #ff3333;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="startScreen">
+  <button id="startButton" onclick="startPrank()">
+    Start
+  </button>
+</div>
+
+<div id="app">
+  <div class="panel">
+    <h1>⚠ SECURITY ALERT</h1>
+    <h2>THREAT SIMULATION</h2>
+
+    <p>Simulierter Systemscan läuft...</p>
+
+    <div class="bar">
+      <div id="progress"></div>
+    </div>
+
+    <h2 id="percent">0%</h2>
+    <p id="status">Initialisierung...</p>
+
+    <div id="terminal"></div>
+
+    <p id="note">DEMO – KEINE ECHTE SYSTEMWARNUNG</p>
+  </div>
+</div>
+
+<script>
+let progress = 0;
+let started = false;
+let audioContext;
+
+const messages = [
+  "Scanning demo environment...",
+  "Checking simulated files...",
+  "Analyzing demo system...",
+  "Generating simulated warning...",
+  "Simulation running...",
+  "Checking demo processes...",
+  "Updating security status...",
+  "Demo scan still active..."
+];
+
+function log(message) {
+  const terminal = document.getElementById("terminal");
+
+  terminal.innerHTML += "> " + message + "<br>";
+  terminal.scrollTop = terminal.scrollHeight;
+
+  while (terminal.children.length > 15) {
+    terminal.removeChild(terminal.firstChild);
+  }
+}
+
+function startPrank() {
+  if (started) return;
+  started = true;
+
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+
+  document.body.classList.add("active");
+
+  // Sound beginnt nach dem bewussten Antippen.
+  audioContext = new (
+    window.AudioContext || window.webkitAudioContext
+  )();
+
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  oscillator.type = "sawtooth";
+  oscillator.frequency.value = 180;
+  gain.gain.value = 0.025;
+
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+
+  oscillator.start();
+
+  // Kurzer Sound, keine Dauerschleife.
+  setTimeout(() => {
+    oscillator.stop();
+    audioContext.close();
+  }, 1500);
+
+  setInterval(() => {
+    progress = Math.min(100, progress + Math.floor(Math.random() * 3) + 1);
+
+    document.getElementById("progress").style.width =
+      progress + "%";
+
+    document.getElementById("percent").textContent =
+      progress + "%";
+
+    const message =
+      messages[Math.floor(Math.random() * messages.length)];
+
+    document.getElementById("status").textContent =
+      progress === 100
+        ? "Simulation läuft weiterhin..."
+        : message;
+
+    if (Math.random() > 0.45) {
+      log(message);
+    }
+  }, 900);
+}
+</script>
+
+</body>
+</html>
