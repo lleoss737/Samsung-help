@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security Demo</title>
+<style>
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:#080000;
+  color:#ff3333;
+  font-family:monospace;
+  overflow:hidden;
+}
+#app {
+  min-height:100vh;
+  padding:22px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+}
+h1 {
+  font-size:32px;
+  text-shadow:0 0 15px red;
+  animation:glitch .2s infinite;
+}
+.panel {
+  border:2px solid red;
+  background:#200000;
+  padding:18px;
+  border-radius:12px;
+  box-shadow:0 0 25px red;
+}
+.bar {
+  height:15px;
+  background:#444;
+  margin:20px 0;
+  border-radius:20px;
+  overflow:hidden;
+}
+#progress {
+  width:0%;
+  height:100%;
+  background:red;
+}
+#terminal {
+  text-align:left;
+  height:110px;
+  overflow:hidden;
+  font-size:12px;
+  color:#ff7777;
+}
+@keyframes glitch {
+  0%,100% {transform:translate(0)}
+  25% {transform:translate(2px,-1px)}
+  50% {transform:translate(-2px,1px)}
+}
+body.active {
+  animation:flash .3s infinite;
+}
+@keyframes flash {
+  0%,100% {background:#080000}
+  50% {background:#260000}
+}
+body.inverted #app {
+  filter:invert(1);
+}
+button {
+  padding:15px;
+  border:0;
+  border-radius:8px;
+  font-weight:bold;
+  margin:8px;
+}
+#stop {background:white;color:black}
+#sound {background:#a00000;color:white}
+#note {font-size:11px;color:#aaa}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="panel">
+    <h1>⚠ SECURITY ALERT</h1>
+    <h2>THREAT SIMULATION</h2>
+    <p>Simulierter Systemscan läuft...</p>
+
+    <div class="bar">
+      <div id="progress"></div>
+    </div>
+
+    <h2 id="percent">0%</h2>
+    <p id="status">Initialisierung...</p>
+    <div id="terminal"></div>
+
+    <p id="note">HARMLOSE PRANK-SIMULATION</p>
+  </div>
+
+  <button id="sound" onclick="enableSound()">
+    🔊 SOUND AKTIVIEREN
+  </button>
+  <button id="stop" onclick="stopPrank()">
+    ✖ PRANK BEENDEN
+  </button>
+</div>
+
+<script>
+let progress = 0;
+let timer;
+let audio;
+let stopped = false;
+
+const messages = [
+  "Scanning demo environment...",
+  "Checking simulated files...",
+  "Analyzing demo system...",
+  "Generating fake warning...",
+  "Simulation running...",
+  "No real threats detected."
+];
+
+function log(message) {
+  const terminal = document.getElementById("terminal");
+  terminal.innerHTML += "> " + message + "<br>";
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+function startPrank() {
+  document.body.classList.add("active");
+
+  timer = setInterval(() => {
+    if(stopped) return;
+
+    progress = Math.min(100,progress + 1);
+
+    document.getElementById("progress")
+      .style.width = progress + "%";
+
+    document.getElementById("percent")
+      .textContent = progress + "%";
+
+    document.getElementById("status")
+      .textContent = messages[
+        Math.floor(Math.random()*messages.length)
+      ];
+
+    if(progress % 10 === 0) {
+      log(messages[Math.floor(Math.random()*messages.length)]);
+    }
+
+    if(progress === 100) {
+      log("DEMO SCAN COMPLETED");
+      clearInterval(timer);
+    }
+  },300);
+}
+
+function enableSound() {
+  audio = new (window.AudioContext ||
+    window.webkitAudioContext)();
+
+  if(audio.state === "suspended") audio.resume();
+
+  let oscillator = audio.createOscillator();
+  let gain = audio.createGain();
+
+  oscillator.type = "sawtooth";
+  oscillator.frequency.value = 180;
+  gain.gain.value = 0.035;
+
+  oscillator.connect(gain);
+  gain.connect(audio.destination);
+  oscillator.start();
+
+  setTimeout(() => {
+    oscillator.stop();
+    audio.close();
+  },1500);
+
+  document.getElementById("sound").textContent =
+    "SOUND ABGESPIELT";
+}
+
+function stopPrank() {
+  stopped = true;
+  clearInterval(timer);
+  document.body.className = "";
+  document.body.style.filter = "none";
+  document.getElementById("app").innerHTML =
+    "<h1>😂 PRANK BEENDET</h1>" +
+    "<p>Alles wieder normal!</p>";
+}
+
+startPrank();
+</script>
+</body>
+</html>
