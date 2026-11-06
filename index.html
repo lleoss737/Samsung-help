@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security Demo</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #080000;
+  color: #ff3333;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+#app {
+  min-height: 100vh;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: 32px;
+  text-shadow: 0 0 15px red;
+  animation: glitch .2s infinite;
+}
+
+.panel {
+  border: 2px solid red;
+  background: #200000;
+  padding: 18px;
+  border-radius: 12px;
+  animation: panelLight 1.5s ease-in-out infinite;
+}
+
+.bar {
+  height: 15px;
+  background: #444;
+  margin: 20px 0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+#progress {
+  width: 0%;
+  height: 100%;
+  background: red;
+  transition: width .3s;
+}
+
+#terminal {
+  text-align: left;
+  height: 110px;
+  overflow: hidden;
+  font-size: 12px;
+  color: #ff7777;
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  25% { transform: translate(2px, -1px); }
+  50% { transform: translate(-2px, 1px); }
+}
+
+body.active {
+  animation: intenseGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes intenseGlow {
+  0%, 100% {
+    background: #080000;
+  }
+
+  25% {
+    background: #450000;
+  }
+
+  50% {
+    background: #a00000;
+  }
+
+  75% {
+    background: #350000;
+  }
+}
+
+@keyframes panelLight {
+  0%, 100% {
+    box-shadow: 0 0 12px red;
+    border-color: #990000;
+  }
+
+  50% {
+    box-shadow: 0 0 45px #ff0000,
+                0 0 70px #ff3333;
+    border-color: #ff3333;
+  }
+}
+
+button {
+  padding: 15px;
+  border: 0;
+  border-radius: 8px;
+  font-weight: bold;
+  margin: 8px;
+}
+
+#sound {
+  background: #a00000;
+  color: white;
+}
+
+#note {
+  font-size: 11px;
+  color: #aaa;
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+  <div class="panel">
+
+    <h1>⚠ SECURITY ALERT</h1>
+    <h2>THREAT SIMULATION</h2>
+
+    <p>Simulierter Systemscan läuft...</p>
+
+    <div class="bar">
+      <div id="progress"></div>
+    </div>
+
+    <h2 id="percent">0%</h2>
+    <p id="status">Initialisierung...</p>
+
+    <div id="terminal"></div>
+
+    <p id="note">DEMO – KEINE ECHTE SYSTEMWARNUNG</p>
+
+  </div>
+
+  <button id="sound" onclick="enableSound()">
+    🔊 SOUND AKTIVIEREN
+  </button>
+
+</div>
+
+<script>
+let progress = 0;
+let audio;
+
+const messages = [
+  "Scanning demo environment...",
+  "Checking simulated files...",
+  "Analyzing demo system...",
+  "Generating simulated warning...",
+  "Simulation running...",
+  "Checking demo processes...",
+  "Updating security status...",
+  "Demo scan still active..."
+];
+
+function log(message) {
+  const terminal = document.getElementById("terminal");
+
+  terminal.innerHTML += "> " + message + "<br>";
+  terminal.scrollTop = terminal.scrollHeight;
+
+  while (terminal.children.length > 15) {
+    terminal.removeChild(terminal.firstChild);
+  }
+}
+
+function startPrank() {
+  document.body.classList.add("active");
+
+  setInterval(() => {
+
+    progress += Math.floor(Math.random() * 3) + 1;
+
+    if (progress >= 100) {
+      progress = 100;
+    }
+
+    document.getElementById("progress").style.width =
+      progress + "%";
+
+    document.getElementById("percent").textContent =
+      progress + "%";
+
+    document.getElementById("status").textContent =
+      messages[Math.floor(Math.random() * messages.length)];
+
+    if (Math.random() > 0.45) {
+      log(messages[Math.floor(Math.random() * messages.length)]);
+    }
+
+    if (progress === 100) {
+      document.getElementById("status").textContent =
+        "Simulation läuft weiterhin...";
+    }
+
+  }, 900);
+}
+
+function enableSound() {
+  if (audio) return;
+
+  audio = new (window.AudioContext ||
+    window.webkitAudioContext)();
+
+  if (audio.state === "suspended") {
+    audio.resume();
+  }
+
+  const oscillator = audio.createOscillator();
+  const gain = audio.createGain();
+
+  oscillator.type = "sawtooth";
+  oscillator.frequency.value = 180;
+  gain.gain.value = 0.035;
+
+  oscillator.connect(gain);
+  gain.connect(audio.destination);
+
+  oscillator.start();
+
+  setTimeout(() => {
+    oscillator.stop();
+    audio.close();
+    audio = null;
+  }, 1500);
+
+  document.getElementById("sound").textContent =
+    "SOUND ABGESPIELT";
+}
+
+startPrank();
+</script>
+
+</body>
+</html>
